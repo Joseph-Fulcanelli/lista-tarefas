@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lista de Tarefas</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; color: #1a1a2e; padding: 20px; }
+        .container { max-width: 700px; margin: 0 auto; }
+
+        .demo-lista {
+            background: white;
+            border-radius: 16px;
+            padding: 25px;
+            border: 2px solid #dee2e6;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+        .demo-lista .header-lista {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+        .demo-lista .header-lista img {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        .demo-lista .header-lista h3 { font-size: 1.1rem; }
+        .demo-lista .header-lista small { font-size: 0.7rem; color: #6c757d; display: block; }
+
+        .input-group { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+        .input-group input { flex: 1; padding: 10px 14px; border-radius: 8px; border: 2px solid #dee2e6; font-size: 1rem; min-width: 150px; }
+        .input-group input:focus { outline: none; border-color: #f5576c; box-shadow: 0 0 0 3px rgba(245,87,108,0.2); }
+
+        .btn-demo {
+            padding: 8px 14px; margin-top: 6px; border-radius: 8px; border: none;
+            background: #f5576c; color: white; font-size: 0.75rem; font-weight: 600;
+            cursor: pointer; transition: 0.3s; display: inline-flex; align-items: center; justify-content: center;
+            gap: 6px; flex: 1; min-width: 80px;
+        }
+        .btn-demo:hover { transform: scale(1.02); box-shadow: 0 4px 15px rgba(245,87,108,0.3); }
+        .btn-demo img { width: 16px; height: 16px; filter: brightness(0) invert(1); }
+        .btn-demo.btn-secondary { background: #6c757d; }
+        .btn-demo.btn-secondary:hover { background: #5a6268; }
+        .btn-demo.btn-success { background: #28a745; }
+        .btn-demo.btn-success:hover { background: #218838; }
+        .btn-demo.btn-danger { background: #dc3545; }
+        .btn-demo.btn-danger:hover { background: #c82333; }
+        .btn-demo.full { flex: 1 1 100%; }
+
+        .btn-group-demo { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
+        .btn-group-demo .btn-demo { flex: 1; min-width: 70px; }
+
+        #resultado {
+            margin-top: 14px; background: #f0f0f0; padding: 12px; border-radius: 8px;
+            max-height: 250px; overflow-y: auto; white-space: pre-wrap; border: 1px solid #dee2e6;
+            font-family: 'Courier New', monospace; font-size: 0.85rem; line-height: 1.8; min-height: 60px;
+        }
+
+        .status-lista {
+            display: flex; justify-content: space-between; margin-top: 10px;
+            font-size: 0.8rem; color: #6c757d; flex-wrap: wrap; gap: 6px;
+        }
+        .status-lista span { background: #e9ecef; padding: 2px 12px; border-radius: 12px; }
+
+        .footer-lista {
+            text-align: center; margin-top: 15px; padding-top: 15px;
+            border-top: 1px solid #dee2e6; font-size: 0.75rem; color: #6c757d;
+        }
+        .footer-lista .autor { display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .footer-lista .autor img { width: 28px; height: 28px; border-radius: 50%; object-fit: cover; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="demo-lista">
+
+            <div class="header-lista">
+                <img src="images/logo-dev.jpg" alt="Logo" onerror="this.src='https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=80&h=80&fit=crop&crop=face'" />
+                <div>
+                    <h3>📋 Lista de Tarefas</h3>
+                    <small>Gerenciador de tarefas</small>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <input type="text" id="tarefaInput" placeholder="Digite uma nova tarefa..." />
+            </div>
+
+            <div class="btn-group-demo">
+                <button class="btn-demo" onclick="adicionarTarefa()" title="push"><img src="icons/add.svg" /> Final</button>
+                <button class="btn-demo" onclick="adicionarInicio()" title="unshift"><img src="icons/add.svg" /> Início</button>
+            </div>
+
+            <div class="btn-group-demo">
+                <button class="btn-demo" onclick="removerUltima()" title="pop"><img src="icons/delete.svg" /> Última</button>
+                <button class="btn-demo" onclick="removerPrimeira()" title="shift"><img src="icons/delete.svg" /> Primeira</button>
+            </div>
+
+            <div class="btn-group-demo">
+                <button class="btn-demo" onclick="removerPorIndice()" title="splice"><img src="icons/edit.svg" /> Remover por posição</button>
+                <button class="btn-demo" onclick="alternarStatus()" title="check"><img src="icons/check.svg" /> Concluir/Pendente</button>
+            </div>
+
+            <div class="btn-group-demo">
+                <button class="btn-demo btn-success" onclick="exportarJSON()" title="export"><img src="icons/export.svg" /> Exportar backup</button>
+                <button class="btn-demo btn-secondary" onclick="document.getElementById('importFile').click();" title="import"><img src="icons/import.svg" /> Importar backup</button>
+                <input type="file" id="importFile" accept=".json" style="display:none;" onchange="importarJSON(event)" />
+            </div>
+
+            <div class="btn-group-demo">
+                <button class="btn-demo btn-danger full" onclick="limparTodas()"><img src="icons/delete.svg" /> Limpar todas</button>
+            </div>
+
+            <div id="resultado">📭 Nenhuma tarefa cadastrada</div>
+
+            <div class="status-lista">
+                <span id="totalTarefas">Total: 0</span>
+                <span id="concluidas">✅ Concluídas: 0</span>
+                <span id="pendentes">⏳ Pendentes: 0</span>
+            </div>
+
+            <div class="footer-lista">
+                <div class="autor">
+                    <img src="images/logo-dev.jpg" alt="Logo" onerror="this.src='https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=60&h=60&fit=crop&crop=face'" />
+                    <span>Desenvolvido por <strong>Seu Nome</strong></span>
+                </div>
+                <p style="font-size:0.7rem; margin-top:4px;">Dados carregados do arquivo tarefas.json</p>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        let tarefas = [];
+
+        function atualizarDisplay() {
+            const resultado = document.getElementById("resultado");
+            const total = document.getElementById("totalTarefas");
+            const concluidas = document.getElementById("concluidas");
+            const pendentes = document.getElementById("pendentes");
+
+            if (tarefas.length === 0) {
+                resultado.textContent = "📭 Nenhuma tarefa cadastrada";
+            } else {
+                let texto = "";
+                tarefas.forEach(function(tarefa, indice) {
+                    const status = tarefa.concluida ? "✅" : "⏳";
+                    texto += indice + ": " + status + " " + tarefa.texto + "\n";
+                });
+                resultado.textContent = texto;
+            }
+
+            const totalCount = tarefas.length;
+            const concluidasCount = tarefas.filter(function(t) { return t.concluida; }).length;
+            const pendentesCount = totalCount - concluidasCount;
+
+            total.textContent = "Total: " + totalCount;
+            concluidas.textContent = "✅ Concluídas: " + concluidasCount;
+            pendentes.textContent = "⏳ Pendentes: " + pendentesCount;
+        }
+
+        function adicionarTarefa() {
+            const input = document.getElementById("tarefaInput");
+            const texto = input.value.trim();
+            if (texto === "") { alert("Digite uma tarefa!"); return; }
+            tarefas.push({ texto: texto, concluida: false });
+            input.value = "";
+            atualizarDisplay();
+        }
+
+        function adicionarInicio() {
+            const input = document.getElementById("tarefaInput");
+            const texto = input.value.trim();
+            if (texto === "") { alert("Digite uma tarefa!"); return; }
+            tarefas.unshift({ texto: texto, concluida: false });
+            input.value = "";
+            atualizarDisplay();
+        }
+
+        function removerUltima() {
+            if (tarefas.length === 0) { alert("Lista vazia!"); return; }
+            const removida = tarefas.pop();
+            alert("🗑️ Tarefa removida: " + removida.texto);
+            atualizarDisplay();
+        }
+
+        function removerPrimeira() {
+            if (tarefas.length === 0) { alert("Lista vazia!"); return; }
+            const removida = tarefas.shift();
+            alert("🗑️ Tarefa removida: " + removida.texto);
+            atualizarDisplay();
+        }
+
+        function removerPorIndice() {
+            if (tarefas.length === 0) { alert("Lista vazia!"); return; }
+            const indice = prompt("Digite o índice da tarefa a remover (0 a " + (tarefas.length - 1) + "):");
+            if (indice === null) return;
+            const i = parseInt(indice);
+            if (isNaN(i) || i < 0 || i >= tarefas.length) { alert("Índice inválido!"); return; }
+            const removida = tarefas.splice(i, 1);
+            alert("🗑️ Tarefa removida: " + removida[0].texto);
+            atualizarDisplay();
+        }
+
+        function alternarStatus() {
+            if (tarefas.length === 0) { alert("Lista vazia!"); return; }
+            const indice = prompt("Digite o índice da tarefa (0 a " + (tarefas.length - 1) + "):");
+            if (indice === null) return;
+            const i = parseInt(indice);
+            if (isNaN(i) || i < 0 || i >= tarefas.length) { alert("Índice inválido!"); return; }
+            tarefas[i].concluida = !tarefas[i].concluida;
+            const status = tarefas[i].concluida ? "✅ CONCLUÍDA" : "⏳ PENDENTE";
+            alert("Tarefa agora está " + status + ": " + tarefas[i].texto);
+            atualizarDisplay();
+        }
+
+        function limparTodas() {
+            if (tarefas.length === 0) { alert("Lista já está vazia!"); return; }
+            if (!confirm("🗑️ Tem certeza que deseja limpar todas as tarefas?")) return;
+            tarefas = [];
+            atualizarDisplay();
+            alert("📭 Todas as tarefas foram removidas!");
+        }
+
+        function exportarJSON() {
+            if (tarefas.length === 0) { alert("📭 Não há tarefas para exportar!"); return; }
+            const json = JSON.stringify(tarefas, null, 2);
+            const blob = new Blob([json], { type: "application/json" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = "tarefas.json";
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            alert("📥 Backup exportado com sucesso! " + tarefas.length + " tarefas salvas.");
+        }
+
+        function importarJSON(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const dados = JSON.parse(e.target.result);
+                    if (!Array.isArray(dados)) { alert("❌ Arquivo JSON inválido!"); return; }
+                    if (dados.length === 0) { alert("📭 O arquivo importado está vazio."); return; }
+                    for (let i = 0; i < dados.length; i++) {
+                        if (typeof dados[i].texto !== 'string' || typeof dados[i].concluida !== 'boolean') {
+                            alert("❌ Estrutura do JSON inválida! Cada tarefa deve ter 'texto' e 'concluida'.");
+                            return;
+                        }
+                    }
+                    tarefas = dados;
+                    atualizarDisplay();
+                    alert("📤 Backup importado com sucesso! " + tarefas.length + " tarefas carregadas.");
+                } catch (erro) {
+                    alert("❌ Erro ao importar: " + erro.message);
+                }
+            };
+            reader.readAsText(file);
+            event.target.value = "";
+        }
+
+        function carregarDoJSON() {
+            fetch("tarefas.json")
+                .then(function(resposta) {
+                    if (!resposta.ok) { throw new Error("Arquivo não encontrado"); }
+                    return resposta.json();
+                })
+                .then(function(dados) {
+                    if (Array.isArray(dados) && dados.length > 0) {
+                        tarefas = dados;
+                        atualizarDisplay();
+                    }
+                })
+                .catch(function() {});
+        }
+
+        carregarDoJSON();
+    </script>
+
+</body>
+</html>

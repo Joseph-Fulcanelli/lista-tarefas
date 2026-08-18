@@ -1,0 +1,18 @@
+[
+    {
+        "texto": "Estudar JavaScript",
+        "concluida": false
+    },
+    {
+        "texto": "Fazer exercícios de array",
+        "concluida": false
+    },
+    {
+        "texto": "Publicar no GitHub Pages",
+        "concluida": false
+    },
+    {
+        "texto": "Entregar atividade",
+        "concluida": true
+    }
+]
